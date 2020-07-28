@@ -55,6 +55,7 @@ function solve() {
             }
           }
           /// if there is no solution, we have to return.
+          return;
         }
       }
     }
