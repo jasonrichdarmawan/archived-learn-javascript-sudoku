@@ -56,25 +56,25 @@ function possible(r, c, n) {
 let result;
 let count = 0;
 
-function solve() {
+function solve(variable) {
     /// check the row -> check the column for grid with property value of 0.
     for (let r=0;r<9;r++) {
         for (let c=0;c<9;c++) {
-            if (grid[r][c] === 0) {
+            if (variable[r][c] === 0) {
                 //console.log(`${r},${c}`)
                 /// check for possible solution
                 for (let n=1;n<10;n++) {
                     //console.log(`${r},${c},${n}`)
                     if (possible(r,c,n)) {
                         console.log(`possible ${r},${c},${n}`)
-                        grid[r][c] = n;
+                        variable[r][c] = n;
                         // recursive function
-                        solve();
+                        solve(variable);
                         /// there is a high chance of generating bad solution
                         /// read comments outside the Loop arguments.
                         /// backtrack -> set the value to 0 to start from the new solution
                         console.log(`false ${r},${c},${n}`)
-                        grid[r][c] = 0;
+                        variable[r][c] = 0;
                     }
                 }
                 /// if there is no solution -> backtrack
@@ -85,10 +85,10 @@ function solve() {
     }
     /// return the object value -> to a variable.
     console.log('start')
-    console.log(`${JSON.stringify(grid)}`);
+    console.log(`${JSON.stringify(variable)}`);
     console.log('end')
     count++
-    result = JSON.stringify(grid);
+    result = JSON.stringify(variable);
 }
 
 let isNotProperPuzzle = false;
@@ -104,7 +104,7 @@ function generate(difficulty) {
     grid[r][c] = 0;
     memory = grid;
     /// solve the puzzle;
-    solve(); count--;
+    solve(grid); count--;
     /// if there is more than 1 solution -> stop.
     if (count > 0) {
         /// ... stop -> go back to previous memory;
