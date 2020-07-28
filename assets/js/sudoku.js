@@ -40,6 +40,8 @@ function possible(r, c, n) {
     return true;
 }
 
+let result;
+
 function solve() {
     /// check the row -> check the column for grid with property value of 0.
     for (let r=0;r<9;r++) {
@@ -61,15 +63,14 @@ function solve() {
                     }
                 }
                 /// if there is no solution -> backtrack
-                console.log(JSON.stringify(grid))
                 return;
             }
         }
     }
     /// return the object value -> to a variable.
-    window.value = JSON.stringify(grid);
+    result = JSON.stringify(grid);
 }
 
 solve();
 
-console.log(window.value)
+console.log(`result ${result}`)
