@@ -9,8 +9,7 @@
 ------+-------+------
 . 6 . | . . . | 2 8 .
 . . . | 4 1 9 | . . 5
-. . . | . 8 . | . 7 9 */
-
+. . . | . 8 . | . 7 9 
 let grid = [[5,3,0,0,7,0,0,0,0],
             [6,0,0,1,9,5,0,0,0],
             [0,9,8,0,0,0,0,6,0],
@@ -20,6 +19,20 @@ let grid = [[5,3,0,0,7,0,0,0,0],
             [0,6,0,0,0,0,2,8,0],
             [0,0,0,4,1,9,0,0,5],
             [0,0,0,0,8,0,0,7,9]];
+*/
+
+/// the grid is a solved sudoku and used as the seed for the puzzle generator.
+let grid = [
+    [5,3,4,6,7,8,9,1,2],
+    [6,7,2,1,9,5,3,4,8],
+    [1,9,8,3,4,2,5,6,7],
+    [8,5,9,7,6,1,4,2,3],
+    [4,2,6,8,5,3,7,9,1],
+    [7,1,3,9,2,4,8,5,6],
+    [9,6,1,5,3,7,2,8,4],
+    [2,8,7,4,1,9,6,3,5],
+    [3,4,5,2,8,6,1,7,9]]
+;
 
 function possible(r, c, n) {
     /// check the row / horizontal
@@ -78,11 +91,37 @@ function solve() {
     result = JSON.stringify(grid);
 }
 
-solve();
-
-console.log(`result ${result}`)
-
 let isNotProperPuzzle = false;
-if (count > 1) isNotProperPuzzle = true;
+function isItProperPuzzle() {
+    if (count > 1) isNotProperPuzzle = true;
+}
 
-console.log(`isNotProperPuzzle ${isNotProperPuzzle}`)
+function generate(difficulty) {
+    //console.log(`puzzle ${puzzle}`)
+    /// set random grid value to 0
+    r = Math.floor(Math.random() * 8);
+    c = Math.floor(Math.random() * 8);
+    grid[r][c] = 0;
+    memory = grid;
+    /// solve the puzzle;
+    solve(); count--;
+    /// if there is more than 1 solution -> stop.
+    if (count > 0) {
+        /// ... stop -> go back to previous memory;
+        memory = grid;
+        //console.log("stop");
+        return;
+    } else grid = memory;
+    if (difficulty === 1) return 1;
+    return generate(difficulty-1);
+}
+
+generate(17);
+
+/// Difficulty represent the number of squares with digits.
+/// "easy":      62
+/// "easy-2":    53
+/// "easy-3":    44
+/// "medium":    35
+/// "hard":      26
+/// "very-hard": 17
