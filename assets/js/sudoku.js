@@ -22,10 +22,10 @@ var grid = [[5,3,0,0,7,0,0,0,0],
             [0,0,0,0,8,0,0,7,9]];
 
 function possible(r, c, n) {
-    /// check the row
+    /// check the row / horizontal
     for (let i=0;i<9;i++) if (grid[r][i] === n) return false;
-    /// check the column
-    for (let i=0;i<9;i++) if (grid[i][r] === n) return false;
+    /// check the column // vertical
+    for (let i=0;i<9;i++) if (grid[i][c] === n) return false;
     // check the sub-grid / 3x3 grid.
     /// define the r0 and c0 of the su-grid.
     let r0 = Math.floor(Math.floor(r/3) * 3);
