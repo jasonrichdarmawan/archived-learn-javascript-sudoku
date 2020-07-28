@@ -1,7 +1,8 @@
-### TO DO
+### Task Lists
 
 - [x] sudoku solver.
-- [x] sudoku generator.
+- [x] sudoku generator based on 1 seed.
+- [ ] sudoku generator based on random seed.
 - [ ] result -> HTML DOM
 
 The sudoku solver logic is usable. result -> HTML DOM implementation will be carried out at later date.
