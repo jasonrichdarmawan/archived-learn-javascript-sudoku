@@ -59,7 +59,7 @@ function solve() {
         }
       }
     }
-    console.log(grid);
+    console.log(JSON.stringfygrid);
 }
 
 solve()
