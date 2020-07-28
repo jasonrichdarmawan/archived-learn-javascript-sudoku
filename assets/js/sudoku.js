@@ -41,6 +41,7 @@ function possible(r, c, n) {
 }
 
 let result;
+let count = 0;
 
 function solve() {
     /// check the row -> check the column for grid with property value of 0.
@@ -52,25 +53,36 @@ function solve() {
                 for (let n=1;n<10;n++) {
                     //console.log(`${r},${c},${n}`)
                     if (possible(r,c,n)) {
-                        //console.log(`possible ${r},${c},${n}`)
+                        console.log(`possible ${r},${c},${n}`)
                         grid[r][c] = n;
                         // recursive function
                         solve();
                         /// there is a high chance of generating bad solution
                         /// read comments outside the Loop arguments.
                         /// backtrack -> set the value to 0 to start from the new solution
+                        console.log(`false ${r},${c},${n}`)
                         grid[r][c] = 0;
                     }
                 }
                 /// if there is no solution -> backtrack
+                console.log(`${JSON.stringify(grid)} ${r},${c}`);
                 return;
             }
         }
     }
     /// return the object value -> to a variable.
+    console.log('start')
+    console.log(`${JSON.stringify(grid)}`);
+    console.log('end')
+    count++
     result = JSON.stringify(grid);
 }
 
 solve();
 
 console.log(`result ${result}`)
+
+let isNotProperPuzzle = false;
+if (count > 1) isNotProperPuzzle = true;
+
+console.log(`isNotProperPuzzle ${isNotProperPuzzle}`)
