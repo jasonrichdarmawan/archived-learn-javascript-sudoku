@@ -1,129 +1,274 @@
-/* a string of digits, 1 - 9, and '0' as spaces. Each character represent a square, e.g.,
-5 3 . | . 7 . | . . .
-6 . . | 1 9 5 | . . .
-. 9 8 | . . . | . 6 .
-------+-------+------
-8 . . | . 6 . | . . 3
-4 . . | 8 . 3 | . . 1
-7 . . | . 2 . | . . 6
-------+-------+------
-. 6 . | . . . | 2 8 .
-. . . | 4 1 9 | . . 5
-. . . | . 8 . | . 7 9 
-let grid = [
-    [5,3,0,0,7,0,0,0,0],
-    [6,0,0,1,9,5,0,0,0],
-    [0,9,8,0,0,0,0,6,0],
-    [8,0,0,0,6,0,0,0,3],
-    [4,0,0,8,0,3,0,0,1],
-    [7,0,0,0,2,0,0,0,6],
-    [0,6,0,0,0,0,2,8,0],
-    [0,0,0,4,1,9,0,0,5],
-    [0,0,0,0,8,0,0,7,9]
-];
-*/
+function newGrid(subGridRowLength) {
+  let gridArray = [];
+  let statusArray = [];
+  let gridArrayLength = Math.pow(subGridRowLength, 4);
+  for (let length = 0; length < gridArrayLength; length++) {
+    gridArray.push(0);
+    statusArray.push(false);
+  }
+  return flatArrayToNestedArray(gridArray, statusArray, subGridRowLength);
+}
 
-/// the grid is a solved sudoku and used as the seed for the puzzle generator.
-let grid = [
-    [5,3,4,6,7,8,9,1,2],
-    [6,7,2,1,9,5,3,4,8],
-    [1,9,8,3,4,2,5,6,7],
-    [8,5,9,7,6,1,4,2,3],
-    [4,2,6,8,5,3,7,9,1],
-    [7,1,3,9,2,4,8,5,6],
-    [9,6,1,5,3,7,2,8,4],
-    [2,8,7,4,1,9,6,3,5],
-    [3,4,5,2,8,6,1,7,9]
-];
+function flatArrayToNestedArray(
+  gridFlatArray,
+  statusFlatArray,
+  subGridRowLength
+) {
+  let gridNestedArray = [];
+  let statusNestedArray = [];
+  let gridRowLength = Math.pow(subGridRowLength, 2);
 
-function possible(r, c, n) {
-    /// check the row / horizontal
-    for (let i=0;i<9;i++) if (grid[r][i] === n) return false;
-    /// check the column / vertical
-    for (let i=0;i<9;i++) if (grid[i][c] === n) return false;
-    // check the sub-grid / 3x3 grid.
-    /// define the r0 and c0 of the su-grid.
-    let r0 = Math.floor(Math.floor(r/3) * 3);
-    let c0 = Math.floor(Math.floor(c/3) * 3);
-    /// check the row -> check the column
-    for (let i=0;i<3;i++) {
-        for (let j=0;j<3;j++) {
-            if (grid[r0+i][c0+j] === n) return false;
+  let i = 0;
+  for (i = 0; i < gridFlatArray.length; i += gridRowLength) {
+    let tempGridRow = gridFlatArray.slice(i, i + gridRowLength);
+    gridNestedArray.push(tempGridRow);
+
+    let tempStatusRow = statusFlatArray.slice(i, i + gridRowLength);
+    statusNestedArray.push(tempStatusRow);
+  }
+  return populateTheNestedArray(
+    gridNestedArray,
+    statusNestedArray,
+    subGridRowLength
+  );
+}
+
+function populateTheNestedArray(
+  gridNestedArray,
+  statusNestedArray,
+  subGridRowLength
+) {
+  let gridRowLength = Math.pow(subGridRowLength, 2);
+
+  /// r0, c0 of the subGrid within the Grid
+  /// rSG, cSG within the subGrid
+  for (let r0 = 0; r0 < gridRowLength; r0 += subGridRowLength) {
+    for (let c0 = 0; c0 < gridRowLength; c0 += subGridRowLength) {
+      let numbers = possibleNumbers(gridRowLength);
+      for (let rSG = 0; rSG < subGridRowLength; rSG++) {
+        for (let cSG = 0; cSG < subGridRowLength; cSG++) {
+          n = Math.floor(Math.random() * gridRowLength + 1);
+          if (numbers.indexOf(n) > -1) {
+            /// Sudoku rules: Every possible numbers can only be registered once.
+            numbers.splice(numbers.indexOf(n), 1);
+            gridNestedArray[r0 + rSG][c0 + cSG] = n;
+          } else cSG--; /// loop until the random n is set to nestedArray[][].
         }
+      }
     }
-    /// all check passed
-    return true;
+  }
+  // debug only
+  //   return fix(
+  //     [
+  //       [3, 2, 1, 2],
+  //       [1, 4, 4, 3],
+  //       [2, 3, 1, 3],
+  //       [1, 4, 4, 2],
+  //     ],
+  //     statusNestedArray,
+  //     subGridRowLength
+  //   );
+  return fix(gridNestedArray, statusNestedArray, subGridRowLength);
 }
 
-let result;
-let count = 0;
+function possibleNumbers(gridRowLength) {
+  let numbers = [];
+  for (let n = 1; n <= gridRowLength; n++) {
+    numbers.push(n);
+  }
+  return numbers;
+}
 
-function solve(variable) {
-    /// check the row -> check the column for grid with property value of 0.
-    for (let r=0;r<9;r++) {
-        for (let c=0;c<9;c++) {
-            if (variable[r][c] === 0) {
-                //console.log(`${r},${c}`)
-                /// check for possible solution
-                for (let n=1;n<10;n++) {
-                    //console.log(`${r},${c},${n}`)
-                    if (possible(r,c,n)) {
-                        console.log(`possible ${r},${c},${n}`)
-                        variable[r][c] = n;
-                        // recursive function
-                        solve(variable);
-                        /// there is a high chance of generating bad solution
-                        /// read comments outside the Loop arguments.
-                        /// backtrack -> set the value to 0 to start from the new solution
-                        console.log(`false ${r},${c},${n}`)
-                        variable[r][c] = 0;
-                    }
-                }
-                /// if there is no solution -> backtrack
-                console.log(`${JSON.stringify(grid)} ${r},${c}`);
-                return;
-            }
+function fix(gridNestedArray, statusNestedArray, subGridRowLength) {
+  let gridRowLength = Math.pow(subGridRowLength, 2);
+
+  for (let steps = 0; steps < gridRowLength; steps++) {
+    // horizontal
+    let turns = "horizontal";
+    changeStatus(statusNestedArray, subGridRowLength, steps, turns);
+    for (let i = gridRowLength - 1; i >= 0; i--) {
+      let tempDuplicates = gridNestedArray[steps].filter(
+        (item, index) => gridNestedArray[steps].indexOf(item) != index
+      );
+      if (tempDuplicates.length != 0) {
+        if (tempDuplicates.indexOf(gridNestedArray[steps][i]) > -1) {
+          let subGrid = subGridExceptSorted(
+            gridNestedArray,
+            statusNestedArray,
+            subGridRowLength,
+            steps,
+            i,
+            turns
+          );
+          //   console.log(gridNestedArray);
+          //   console.log(`subGrid before ${subGrid}`)
+          swapSG(gridNestedArray, subGrid, steps, i, subGridRowLength, turns);
+          //   console.log(`gridNestedArray after ${gridNestedArray}`);
+          //   console.log(`subGrid after ${subGrid}`)
+          //   return;
         }
+      } else i = 0; // end -> next steps
     }
-    /// return the object value -> to a variable.
-    console.log('start')
-    console.log(`${JSON.stringify(variable)}`);
-    console.log('end')
-    count++
-    result = JSON.stringify(variable);
+
+    // vertical
+    turns = "vertical";
+    changeStatus(statusNestedArray, subGridRowLength, steps, turns);
+    for (let i = gridRowLength - 1; i >= 0; i--) {
+      let columnFlatArray = columnToFlatArray(
+        gridNestedArray,
+        subGridRowLength,
+        steps
+      );
+      let tempDuplicates = columnFlatArray.filter(
+        (item, index) => columnFlatArray.indexOf(item) != index
+      );
+      if (tempDuplicates.length != 0) {
+        let subGrid = subGridExceptSorted(
+          gridNestedArray,
+          statusNestedArray,
+          subGridRowLength,
+          steps,
+          i,
+          turns
+        );
+        // console.log(statusNestedArray);
+        // console.log(gridNestedArray);
+        // console.log(`subGrid before ${subGrid}`);
+        swapSG(gridNestedArray, subGrid, steps, i, subGridRowLength, turns);
+        // console.log(`gridNestedArray after ${gridNestedArray}`);
+        // console.log(`subGrid after ${subGrid}`);
+      } else i = 0; // end -> next steps
+    }
+  }
+
+  return isValid(gridNestedArray, subGridRowLength);
 }
 
-let isNotProperPuzzle = false;
-function isItProperPuzzle() {
-    if (count > 1) isNotProperPuzzle = true;
+function changeStatus(statusNestedArray, subGridRowLength, steps, turns) {
+  let gridRowLength = Math.pow(subGridRowLength, 2);
+
+  if (turns === "horizontal") {
+    for (let i = gridRowLength - 1; i >= 0; i--)
+      statusNestedArray[steps][i] = true;
+  }
+
+  if (turns === "vertical") {
+    for (let i = gridRowLength - 1; i >= 0; i--)
+      statusNestedArray[i][steps] = true;
+  }
 }
 
-function generate(difficulty) {
-    //console.log(`puzzle ${puzzle}`)
-    /// set random grid value to 0
-    r = Math.floor(Math.random() * 8);
-    c = Math.floor(Math.random() * 8);
-    grid[r][c] = 0;
-    memory = grid;
-    /// solve the puzzle;
-    solve(grid); count--;
-    /// if there is more than 1 solution -> stop.
-    if (count > 0) {
-        /// ... stop -> go back to previous memory;
-        memory = grid;
-        //console.log("stop");
-        return;
-    } else grid = memory;
-    if (difficulty === 1) return 1;
-    return generate(difficulty-1);
+function subGridExceptSorted(
+  gridNestedArray,
+  statusNestedArray,
+  subGridRowLength,
+  steps,
+  i,
+  turns
+) {
+  let subGridFlatArray = [];
+  let r0;
+  let c0;
+
+  if (turns === "horizontal") {
+    r0 = Math.floor(Math.floor(steps / subGridRowLength) * subGridRowLength);
+    c0 = Math.floor(Math.floor(i / subGridRowLength) * subGridRowLength);
+  } else if (turns === "vertical") {
+    r0 = Math.floor(Math.floor(i / subGridRowLength) * subGridRowLength);
+    c0 = Math.floor(Math.floor(steps / subGridRowLength) * subGridRowLength);
+  }
+
+  for (let rSG = 0; rSG < subGridRowLength; rSG++) {
+    for (let cSG = 0; cSG < subGridRowLength; cSG++) {
+      if (statusNestedArray[r0 + rSG][c0 + cSG] === true)
+        subGridFlatArray.push(0);
+      if (statusNestedArray[r0 + rSG][c0 + cSG] === false)
+        subGridFlatArray.push(gridNestedArray[r0 + rSG][c0 + cSG]);
+    }
+  }
+
+  return subGridFlatArray;
 }
 
-generate(17);
+function swapSG(gridNestedArray, subGrid, steps, i, subGridRowLength, turns) {
+  let gridRowLength = Math.pow(subGridRowLength, 2);
+  for (let a = 0; a < subGrid.length; a++) {
+    for (let b = 0; b < gridRowLength; b++) {
+      if (subGrid[a] === 0) continue;
+      if (turns === "horizontal") {
+        if (
+          b === gridRowLength - 1 &&
+          subGrid[a] != gridNestedArray[steps][b]
+        ) {
+          let r0 = Math.floor(
+            Math.floor(steps / subGridRowLength) * subGridRowLength
+          );
+          let c0 = Math.floor(
+            Math.floor(i / subGridRowLength) * subGridRowLength
+          );
+          let rSG = Math.floor(a / subGridRowLength);
+          let cSG = a % subGridRowLength;
+          /// swap method b = [b, a = b][0]
+          gridNestedArray[steps][i] = [
+            gridNestedArray[r0 + rSG][c0 + cSG],
+            (gridNestedArray[r0 + rSG][c0 + cSG] = gridNestedArray[steps][i]),
+          ][0];
+          subGrid[a] = 0;
+        }
+        if (subGrid[a] === gridNestedArray[steps][b]) b = gridRowLength; // end -> next subGrid[a]
+      } else if (turns === "vertical") {
+        if (
+          b === gridRowLength - 1 &&
+          subGrid[a] != gridNestedArray[b][steps]
+        ) {
+          let r0 = Math.floor(
+            Math.floor(i / subGridRowLength) * subGridRowLength
+          );
+          let c0 = Math.floor(
+            Math.floor(steps / subGridRowLength) * subGridRowLength
+          );
+          let rSG = Math.floor(a / subGridRowLength);
+          let cSG = a % subGridRowLength;
+          /// swap method b = [b, a = b][0]
+          gridNestedArray[i][steps] = [
+            gridNestedArray[r0 + rSG][c0 + cSG],
+            (gridNestedArray[r0 + rSG][c0 + cSG] = gridNestedArray[i][steps]),
+          ][0];
+          subGrid[a] = 0;
+        }
+        if (subGrid[a] === gridNestedArray[b][steps]) b = gridRowLength; // end -> next subGrid[a]
+      }
+    }
+  }
+}
 
-/// Difficulty represent the number of squares with digits.
-/// "easy":      62
-/// "easy-2":    53
-/// "easy-3":    44
-/// "medium":    35
-/// "hard":      26
-/// "very-hard": 17
+function columnToFlatArray(gridNestedArray, subGridRowLength, steps) {
+  let gridRowLength = Math.pow(subGridRowLength, 2);
+
+  let flatArray = [];
+  for (let i = 0; i < gridRowLength; i++)
+    flatArray.push(gridNestedArray[i][steps]);
+  return flatArray;
+}
+
+function isValid(gridNestedArray, subGridRowLength) {
+  let gridRowLength = Math.pow(subGridRowLength, 2);
+  for (let i = 0; i < gridRowLength; i++) {
+    if (new Set(gridNestedArray[i]).size !== gridNestedArray[i].length) {
+        console.log(gridNestedArray);
+        console.log(`gridNestedArray[${i}] ${gridNestedArray[i]}`);
+        return "ERROR: horizontal need new strategy";
+    }
+    let columnFlatArray = columnToFlatArray(
+      gridNestedArray,
+      subGridRowLength,
+      i
+    );
+    if (new Set(columnFlatArray).size !== columnFlatArray.length) {
+        console.log(gridNestedArray);
+        console.log(`columnFlatArray steps ${i} ${columnFlatArray}`);
+        return "ERROR: vertical need new strategy";
+    }
+  }
+  return gridNestedArray;
+}
