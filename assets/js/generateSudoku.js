@@ -3,8 +3,12 @@ let gridRowLength;
 let gridLength;
 
 function newGrid(value) {
+  // reset
+  gridNestedArray = [];
+  statusNestedArray = [];
+
   subGridRowLength = value;
-  gridRowLength = Math.pow(subGridRowLength, 2)
+  gridRowLength = Math.pow(subGridRowLength, 2);
   gridLength = Math.pow(subGridRowLength, 4);
 
   let gridFlatArray = [];
@@ -52,13 +56,22 @@ function populateTheNestedArray() {
     }
   }
 
-  // debug only
+  // debug only: ERROR steps 2 vertical needs new strategy
   // subGridRowLength = 2;
   // gridNestedArray = [
   //   [3, 2, 1, 2],
   //   [1, 4, 4, 3],
   //   [2, 3, 1, 3],
   //   [1, 4, 4, 2]
+  // ];
+
+  // debug only: ERROR steps 3 horizontal needs new strategy
+  // subGridRowlength = 2;
+  // gridNestedArray = [
+  //   [1, 4, 3, 2],
+  //   [2, 3, 1, 4],
+  //   [4, 2, 4, 3],
+  //   [3, 1, 2, 1]
   // ];
 
   return fix();
@@ -77,13 +90,13 @@ function fix() {
   // imagine sorting the Grid in sequence: horizontally -> vertically -> horizontally -> repeat.
   // sort it from backwards. For example, horizontal check: Row 0 Column 3 to 0.
 
-  // important rules: sorted row / column should not be resorted with unsorted row / column.
+  // important rules: sorted row should not be resorted with unsorted column.
   // For example, vertical check: Column 2
   // gridNestedArray   = [
-  //                      [3, 2, 1,          4],
-  //                      [1, 4, 2,          3],
-  //                      [2, 3, 1 (double), 4],
-  //                      [4, 1, 3,          2],
+  //                      [3,      2,        1,          4],
+  //                      [1,      4,        2,          3],
+  //                      [2,      3,        1 (double), 4],
+  //                      [4,      1,        3,          2],
   //                     ];
   // statusNestedArray = [
   //                      [sorted, sorted,   sorted,     sorted],
@@ -93,6 +106,24 @@ function fix() {
   //                     ];
   // gridnestedArray[2][2] = 1 can't swap with the unsorted value gridNestedArray[3][2] = 3 or gridNestedArray[3][3] = 2.
   // the only option left is to swap with sorted values within the subGrid.
+
+  // important rules: sorted column should not be resorted with unsorted row.
+  // For example, horizontal check: Row 2
+  // gridNestedArray   = [
+  //                      [1,      4,      3,          2],
+  //                      [2,      3,      1,          4],
+  //                      [4,      2,      4 (double), 1],
+  //                      [3,      1,      2,          3]
+  //                     ];
+  // statusNestedArray = [
+  //                      [sorted, sorted,   sorted,   sorted],
+  //                      [sorted, sorted,   sorted,   sorted],
+  //                      [sorted, sorted, unsorted, unsorted],
+  //                      [sorted, sorted, unsorted, unsorted]
+  //                     ];
+  // gridNestedArray[2][2] = 4 can't swap with the unsorted value from [3][2] and [3][3]
+  // try to find the next duplicated numbers within the row: gridNested[2].lastIndexOf(4, gridNested[2].lastIndexOf(4) - 1) which is 0. 0 translates as column.
+  // swap it vertically to prevent resorting.
 
   for (let steps = 0; steps < gridRowLength; steps++) {
 
@@ -104,8 +135,13 @@ function fix() {
       if (tempDuplicates.length != 0) {
         let subGrid = subGridExceptSorted(turns, steps, i);
         swapSG(subGrid, turns, steps, i);
+        // if swapSG strategy failed -> try to find the next duplicated numbers within the row
+        // swap it vertically to prevent resorting.
         if (isValid(turns, steps) === false) {
-          return; // TODO:
+          let indexOfBeforelastDuplicates = listDuplicates(turns, steps, "beforelast");
+          let exception = "rebuild with sorted values"
+          subGrid = subGridExceptSorted("vertical", indexOfBeforelastDuplicates, steps, exception)
+          swapSG(subGrid, turns, steps, indexOfBeforelastDuplicates, exception);
         };
       } else i = 0; // end -> wait next steps
     }
@@ -117,7 +153,7 @@ function fix() {
       let tempDuplicates = listDuplicates(turns, steps);
       if (tempDuplicates.length != 0) {
         let subGrid = subGridExceptSorted(turns, steps, i);
-        let indexOflastDuplicates = listDuplicates(turns, steps, true);
+        let indexOflastDuplicates = listDuplicates(turns, steps, "last");
         // console.log(`indexOflastDuplicate ${indexOflastDuplicates}`);
         swapSG(subGrid, turns, steps, indexOflastDuplicates)
         // if swapSG strategy failed -> rebuild the subGrid with sorted values.
@@ -140,18 +176,34 @@ function fix() {
       } else i = 0; // end -> next steps
     }
   }
-  return gridNestedArray;
+
+  // debug only
+  return finalValid();
+
+  // return gridNestedArray;
 }
 
 function listDuplicates(turns, steps, index) {
   if (turns === "horizontal") {
-    return gridNestedArray[steps].filter(
-      (item, index) => gridNestedArray[steps].indexOf(item) != index
-    );
+    if (index === "beforelast") {
+      let tempDuplicates = gridNestedArray[steps].filter(
+        (item, index) => gridNestedArray[steps].indexOf(item) != index
+      );
+      // method to return index before last of something.
+      // object.lastIndexOf(value, object.lastIndexOf(value) - 1)
+      return gridNestedArray[steps].lastIndexOf(
+        tempDuplicates[tempDuplicates.length - 1],
+        gridNestedArray[steps].lastIndexOf(tempDuplicates[tempDuplicates.length - 1]) - 1
+      );
+    } else {
+      return gridNestedArray[steps].filter(
+        (item, index) => gridNestedArray[steps].indexOf(item) != index
+      );
+    }
   }
   if (turns === "vertical") {
     let columnFlatArray = columnToFlatArray(steps);
-    if (index === true) {
+    if (index === "last") {
       let tempDuplicates = columnFlatArray.filter(
         (item, index) => columnFlatArray.indexOf(item) != index
       );
@@ -195,10 +247,19 @@ function subGridExceptSorted(turns, steps, i, exception) {
   }
 
   if (exception == "rebuild with sorted values") {
-    for (let rSG = 0; rSG < 1; rSG++) {
-      for (let cSG = 0; cSG < subGridRowLength; cSG++) {
-        if (statusNestedArray[r0 + rSG][c0 + cSG] === false) subGridFlatArray.push(0);
-        if (statusNestedArray[r0 + rSG][c0 + cSG] === true) subGridFlatArray.push(gridNestedArray[r0 + rSG][c0 + cSG]);
+    if (turns === "horizontal") {
+      for (let rSG = 0; rSG < subGridRowLength; rSG++) {
+        for (let cSG = 0; cSG < subGridRowLength; cSG++) {
+          if (statusNestedArray[r0 + rSG][c0 + cSG] === false) subGridFlatArray.push(0);
+          if (statusNestedArray[r0 + rSG][c0 + cSG] === true) subGridFlatArray.push(gridNestedArray[r0 + rSG][c0 + cSG]);
+        }
+      }
+    } else if (turns === "vertical") {
+      for (let rSG = 0; rSG < subGridRowLength; rSG++) {
+        for (let cSG = 0; cSG < subGridRowLength; cSG++) {
+          if (statusNestedArray[r0 + rSG][c0 + cSG] === false) subGridFlatArray.push(0);
+          if (statusNestedArray[r0 + rSG][c0 + cSG] === true) subGridFlatArray.push(gridNestedArray[r0 + rSG][c0 + cSG]);
+        }
       }
     }
   } else {
@@ -265,9 +326,9 @@ function isValid(turns, steps) {
     // horizontal
     if (turns === "horizontal") {
       if (new Set(gridNestedArray[steps]).size !== gridNestedArray[steps].length) {
-        console.log(gridNestedArray);
-        console.log(`gridNestedArray[${steps}] ${gridNestedArray[steps]}`);
-        console.log(`ERROR: steps ${steps} horizontal need new strategy`);
+        // console.log(gridNestedArray);
+        // console.log(`gridNestedArray[${steps}] ${gridNestedArray[steps]}`);
+        // console.log(`ERROR: steps ${steps} horizontal need new strategy`);
         return false;
       }
     }
@@ -281,6 +342,21 @@ function isValid(turns, steps) {
         // console.log(`ERROR: steps ${steps} vertical need new strategy`);
         return false;
       }
+    }   
+}
+
+// debug only
+function finalValid() {
+  for (let steps = 0; steps < gridRowLength; steps++) {
+    if (new Set(gridNestedArray[steps]).size !== gridNestedArray[steps].length) {
+        console.log(gridNestedArray);
+        return `ERROR: steps ${steps} horizontal need new strategy`;
     }
-    
+    let columnFlatArray = columnToFlatArray(steps)
+    if (new Set(columnFlatArray).size !== columnFlatArray.length) {
+        console.log(gridNestedArray);
+        return `ERROR: steps ${steps} vertical need new strategy`;
+    }
+  }
+  return gridNestedArray;
 }
