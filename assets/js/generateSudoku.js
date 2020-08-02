@@ -52,7 +52,16 @@ function populateTheNestedArray() {
     }
   }
 
-  return gridNestedArray;
+  // debug only
+  subGridRowLength = 2;
+  gridNestedArray = [
+    [3, 2, 1, 2],
+    [1, 4, 4, 3],
+    [2, 3, 1, 3],
+    [1, 4, 4, 2]
+  ];
+
+  return fix();
 }
 
 function possibleNumbers() {
@@ -61,4 +70,63 @@ function possibleNumbers() {
     numbers.push(n);
   }
   return numbers;
+}
+
+function fix() {
+  // shrinking Grid strategy.
+  // imagine sorting the Grid in sequence: horizontally -> vertically -> horizontally -> repeat.
+  // sort it from backwards. For example, horizontal check: Row 0 Column 3 to 0.
+
+  // important rules: sorted row / column should not be resorted with unsorted row / column.
+  // For example, vertical check: Column 2
+  // gridNestedArray   = [
+  //                      [3, 2, 1,          4],
+  //                      [1, 4, 2,          3],
+  //                      [2, 3, 1 (double), 4],
+  //                      [4, 1, 3,          2],
+  //                     ];
+  // statusNestedArray = [
+  //                      [sorted, sorted,   sorted,     sorted],
+  //                      [sorted, sorted,   sorted,     sorted],
+  //                      [sorted, sorted,   sorted,     sorted],
+  //                      [sorted, sorted,   unsorted, unsorted],
+  //                     ];
+  // gridnestedArray[2][2] = 1 can't swap with the unsorted value gridNestedArray[3][2] = 3 or gridNestedArray[3][3] = 2.
+  // the only option left is to swap with sorted values within the subGrid.
+
+  for (let steps = 0; steps < gridRowLength; steps++) {
+
+    // horizontal
+    let turns = "horizontal";
+    for (let i = gridRowLength - 1; i >= 0; i--) {
+      let tempDuplicates = listDuplicates(turns, steps);
+    }
+
+    // vertical
+    turns = "vertical";
+    for (let i = gridRowLength - 1; i >=0; i--) {
+      let tempDuplicates = listDuplicates(turns, steps);
+    }
+  }
+  return gridNestedArray;
+}
+
+function listDuplicates(turns, steps) {
+  if (turns === "horizontal") {
+    return gridNestedArray[steps].filter(
+      (item, index) => gridNestedArray[steps].indexOf(item) != index
+    );
+  }
+  if (turns === "vertical") {
+    let columnFlatArray = columnToFlatArray(steps);
+    return columnFlatArray.filter(
+      (item, index) => columnFlatArray.indexOf(item) != index
+    );
+  }
+}
+
+function columnToFlatArray(steps) {
+  let flatArray = [];
+  for (let i = 0; i < gridRowLength; i++) flatArray.push(gridNestedArray[i][steps]);
+  return flatArray;
 }
