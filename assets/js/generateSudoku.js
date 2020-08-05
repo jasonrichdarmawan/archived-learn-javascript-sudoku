@@ -86,6 +86,7 @@ function populateTheNestedArray() {
   // ];
 
   // debug only: ERROR vertical steps 8 needs new strategy || Fixed
+  // debug only: ERROR horizontal steps 7 needs new strategy -> bug occured again after adjustment to follow the Swap, Sort, Shrink strategy.
   // subGridRowLength = 3;
   // gridNestedArray = [
   //     [5, 8, 3, 1, 9, 6, 7, 2, 8],
@@ -413,7 +414,8 @@ function subGrid(turns, steps, index) {
       if (turns === "horizontal") {
         // if sorted
         if (typeof statusNestedArray[steps][index] != 'undefined') {
-          if (statusNestedArray[r0 + rSG][c0 + cSG] === steps) tempSubGrid.push(gridNestedArray[r0 + rSG][c0 + cSG]);
+          // cSG > index % subGridRowLength; is to prevent accidentally resorting sorted row.
+          if (statusNestedArray[r0 + rSG][c0 + cSG] === steps && cSG > index % subGridRowLength) tempSubGrid.push(gridNestedArray[r0 + rSG][c0 + cSG]);
           else tempSubGrid.push(undefined);
         }
 
@@ -431,7 +433,8 @@ function subGrid(turns, steps, index) {
       else if (turns === "vertical") {
         // if sorted
         if (typeof statusNestedArray[index][steps] != 'undefined'){
-          if (statusNestedArray[r0 + rSG][c0 + cSG] === steps) tempSubGrid.push(gridNestedArray[r0 + rSG][c0 + cSG]);
+          // rSG > index % subGridRowLength; is to prevent accidentally resorting sorted the column.
+          if (statusNestedArray[r0 + rSG][c0 + cSG] === steps && rSG > index % subGridRowLength) tempSubGrid.push(gridNestedArray[r0 + rSG][c0 + cSG]);
           else tempSubGrid.push(undefined);
         }
         
