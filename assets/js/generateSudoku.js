@@ -77,13 +77,13 @@ function populateTheNestedArray() {
   // ];
 
   // debug only: ERROR horizontal steps 3 needs new strategy || Fixed
-  // subGridRowLength = 2;
-  // gridNestedArray = [
-  //   [3,4,3,2],
-  //   [1,2,1,4],
-  //   [4,2,3,2],
-  //   [3,1,1,4]
-  // ]
+  subGridRowLength = 2;
+  gridNestedArray = [
+    [3,4,3,2],
+    [1,2,1,4],
+    [4,2,3,2],
+    [3,1,1,4]
+  ]
 
   // debug only: ERROR vertical steps 8 needs new strategy
   // subGridRowLength = 3;
@@ -143,10 +143,10 @@ function check(turns, steps, request) {
     }
     
     // swap sorted with sorted
-    else if (swapSorted(turns, steps, "canSort") === true) {
-      swapSorted(turns, steps, "sort");
-      check(turns, steps);
-    }
+    // else if (swapSorted(turns, steps, "canSort") === true) {
+    //   swapSorted(turns, steps, "sort");
+    //   check(turns, steps);
+    // }
 
     else if (request === "canFix") return false;
   }
@@ -213,7 +213,19 @@ function sortWithSG(turns, steps, request) {
   }
 
   // debug only
-  console.log(`${turns} steps ${steps} index ${index} tempFlatArray ${tempFlatArray} tempSubGrid ${tempSubGrid}`)
+  if (turns === "horizontal") {
+    console.log(`${turns} steps ${steps} index ${index}
+      sort status ${statusNestedArray[steps][index]}
+      tempFlatArray ${tempFlatArray}
+      tempSubGrid ${tempSubGrid}`
+    );
+  } else if (turns === "vertical") {
+    console.log(`${turns} index ${index} steps ${steps}
+      sort status ${statusNestedArray[index][steps]}
+      tempFlatArray ${tempFlatArray}
+      tempSubGrid ${tempSubGrid}`
+    );
+  }
 
   for (let i = 0; i < tempSubGrid.length; i++) {
     if (typeof tempSubGrid[i] === 'undefined' || 
@@ -351,7 +363,7 @@ function subGrid(turns, steps, index) {
 
         // if not sorted
         else if (typeof statusNestedArray[steps][index] === 'undefined') {
-          if (rSG === 0 && typeof statusNestedArray[steps][index] != 'undefined') {
+          if (rSG === 0 || typeof statusNestedArray[r0 + rSG][c0 + cSG] != 'undefined') {
             tempSubGrid.push(undefined);
             continue; // prevent overlapping with the next if statement.
           }
@@ -369,7 +381,8 @@ function subGrid(turns, steps, index) {
         
         // if not sorted
         else if (typeof statusNestedArray[index][steps] === 'undefined') {
-          if (cSG === 0 && typeof statusNestedArray[index[steps]]) {
+          if (cSG === 0 || typeof statusNestedArray[r0 + rSG][c0 + cSG] != 'undefined') {
+            console.log(`[${r0} + ${rSG} , ${c0} + ${cSG}]`)
             tempSubGrid.push(undefined);
             continue; // prevent overlapping with the next if statement.
           }
@@ -382,71 +395,71 @@ function subGrid(turns, steps, index) {
   return tempSubGrid;
 }
 
-function swapSorted(turns, steps, request) {
-  console.log("swapSorted triggered")
-  let index = listDuplicates(turns, steps, "nextLastIndexOf");
+// function swapSorted(turns, steps, request) {
+//   console.log("swapSorted triggered")
+//   let index = listDuplicates(turns, steps, "nextLastIndexOf");
 
-  let tempSubGrid = [];
+//   let tempSubGrid = [];
 
-  if (turns === "horizontal") {
-    tempFlatArray = gridNestedArray[steps];
-    tempSubGrid = subGrid("vertical", index, steps); // inverted
-  } else if (turns === "vertical") {
-    tempFlatArray = columnToFlatArray(steps);
-    tempSubGrid = subGrid("horizontal", index, steps); // inverted
-  }
+//   if (turns === "horizontal") {
+//     tempFlatArray = gridNestedArray[steps];
+//     tempSubGrid = subGrid("vertical", index, steps); // inverted
+//   } else if (turns === "vertical") {
+//     tempFlatArray = columnToFlatArray(steps);
+//     tempSubGrid = subGrid("horizontal", index, steps); // inverted
+//   }
 
-  // debug only
-  console.log(`${turns} steps ${steps} index ${index}
-    tempFlatArray ${tempFlatArray} tempSubGrid ${tempSubGrid}`
-  )
+//   // debug only
+//   console.log(`${turns} steps ${steps} index ${index}
+//     tempFlatArray ${tempFlatArray} tempSubGrid ${tempSubGrid}`
+//   )
 
-  for (let i = 0; i < tempSubGrid.length; i++) {
-    if (typeof tempSubGrid[i] === 'undefined' ||
-        tempFlatArray.indexOf(tempSubGrid[i]) > -1 
-    ) continue;
+//   for (let i = 0; i < tempSubGrid.length; i++) {
+//     if (typeof tempSubGrid[i] === 'undefined' ||
+//         tempFlatArray.indexOf(tempSubGrid[i]) > -1 
+//     ) continue;
 
-    if (tempFlatArray.indexOf(tempSubGrid[i]) === -1) {
-      // request: canSort
-      if (request === "canSort") {
-        return true;
-      }
+//     if (tempFlatArray.indexOf(tempSubGrid[i]) === -1) {
+//       // request: canSort
+//       if (request === "canSort") {
+//         return true;
+//       }
 
-      // request: sort
-      else if (request === "sort") {
-        let rSG = Math.floor(
-          Math.floor(i / subGridRowLength)
-        );
-        let cSG = i % subGridRowLength;
+//       // request: sort
+//       else if (request === "sort") {
+//         let rSG = Math.floor(
+//           Math.floor(i / subGridRowLength)
+//         );
+//         let cSG = i % subGridRowLength;
   
-        // horizontal
-        if (turns === "horizontal") {
-          let r0 = Math.floor(
-            Math.floor(steps / subGridRowLength) * subGridRowLength
-          ); // inverted
-          let c0 = Math.floor(
-            Math.floor(index / subGridRowLength) * subGridRowLength
-          ); // inverted
-          gridNestedArray[steps][index] = [
-            gridNestedArray[r0 + rSG][c0 + cSG],
-            gridNestedArray[r0 + rSG][c0 + cSG] = gridNestedArray[steps][index]
-          ][0]; // inverted
-        }
+//         // horizontal
+//         if (turns === "horizontal") {
+//           let r0 = Math.floor(
+//             Math.floor(steps / subGridRowLength) * subGridRowLength
+//           );
+//           let c0 = Math.floor(
+//             Math.floor(index / subGridRowLength) * subGridRowLength
+//           );
+//           gridNestedArray[steps][index] = [
+//             gridNestedArray[r0 + rSG][c0 + cSG],
+//             gridNestedArray[r0 + rSG][c0 + cSG] = gridNestedArray[steps][index]
+//           ][0];
+//         }
         
-        // vertical
-        else if (turns === "vertical") {
-          let r0 = Math.floor(
-            Math.floor(index / subGridRowLength) * subGridRowLength
-          ); // inverted
-          let c0 = Math.floor(
-            Math.floor(steps / subGridRowLength) * subGridRowLength
-          ); // inverted
-          gridNestedArray[index][steps] = [
-            gridNestedArray[r0 + rSG][c0 + cSG],
-            gridNestedArray[r0 + rSG][c0 + cSG] = gridNestedArray[index][steps]
-          ][0]; // inverted
-        }
-      }
-    }
-  }
-}
+//         // vertical
+//         else if (turns === "vertical") {
+//           let r0 = Math.floor(
+//             Math.floor(index / subGridRowLength) * subGridRowLength
+//           );
+//           let c0 = Math.floor(
+//             Math.floor(steps / subGridRowLength) * subGridRowLength
+//           );
+//           gridNestedArray[index][steps] = [
+//             gridNestedArray[r0 + rSG][c0 + cSG],
+//             gridNestedArray[r0 + rSG][c0 + cSG] = gridNestedArray[index][steps]
+//           ][0];
+//         }
+//       }
+//     }
+//   }
+// }
