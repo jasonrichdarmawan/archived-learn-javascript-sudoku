@@ -58,7 +58,7 @@ function populateTheNestedArray() {
     }
   }
 
-  // debug only: ERROR steps 2 vertical needs new strategy
+  // debug only: ERROR steps 2 vertical needs new strategy || Fixed
   // subGridRowLength = 2;
   // gridNestedArray = [
   //   [3, 2, 1, 2],
@@ -67,7 +67,7 @@ function populateTheNestedArray() {
   //   [1, 4, 4, 2]
   // ];
 
-  // debug only: ERROR steps 3 horizontal needs new strategy
+  // debug only: ERROR steps 3 horizontal needs new strategy || Fixed
   // subGridRowLength = 2;
   // gridNestedArray = [
   //   [1, 4, 3, 2],
@@ -76,14 +76,28 @@ function populateTheNestedArray() {
   //   [3, 1, 2, 1]
   // ];
 
-  // debug only: ERROR horizontal steps 3 needs new strategy
-  subGridRowLength = 2;
-  gridNestedArray = [
-    [3,4,3,2],
-    [1,2,1,4],
-    [4,2,3,2],
-    [3,1,1,4]
-  ]
+  // debug only: ERROR horizontal steps 3 needs new strategy || Fixed
+  // subGridRowLength = 2;
+  // gridNestedArray = [
+  //   [3,4,3,2],
+  //   [1,2,1,4],
+  //   [4,2,3,2],
+  //   [3,1,1,4]
+  // ]
+
+  // debug only: ERROR vertical steps 8 needs new strategy
+  // subGridRowLength = 3;
+  // gridNestedArray = [
+  //     [5, 8, 3, 1, 9, 6, 7, 2, 8],
+  //     [9, 7, 6, 2, 4, 5, 4, 3, 1],
+  //     [1, 4, 2, 3, 8, 7, 5, 6, 9],
+  //     [7, 2, 4, 6, 3, 1, 5, 9, 7],
+  //     [8, 9, 1, 5, 2, 8, 6, 4, 3],
+  //     [6, 3, 5, 4, 7, 9, 2, 1, 8],
+  //     [2, 1, 8, 7, 5, 2, 6, 9, 5],
+  //     [3, 6, 7, 9, 1, 4, 8, 3, 4],
+  //     [4, 5, 9, 8, 6, 3, 1, 7, 2]
+  // ]
 
   // debug only
   console.log(`=== Start: Before Fix ===`)
@@ -189,8 +203,6 @@ function sortWithSG(turns, steps, request) {
   let index = listDuplicates(turns, steps, "lastIndexOf");
 
   let tempSubGrid = subGrid(turns, steps, index);
-  // debug only
-  console.log(`${turns} steps ${steps} index ${index} tempSubGrid ${tempSubGrid}`)
 
   let tempFlatArray = [];
 
@@ -199,6 +211,9 @@ function sortWithSG(turns, steps, request) {
   } else if (turns === "vertical") {
     tempFlatArray = columnToFlatArray(steps);
   }
+
+  // debug only
+  console.log(`${turns} steps ${steps} index ${index} tempFlatArray ${tempFlatArray} tempSubGrid ${tempSubGrid}`)
 
   for (let i = 0; i < tempSubGrid.length; i++) {
     if (typeof tempSubGrid[i] === 'undefined' || 
@@ -336,7 +351,7 @@ function subGrid(turns, steps, index) {
 
         // if not sorted
         else if (typeof statusNestedArray[steps][index] === 'undefined') {
-          if (rSG === 0) {
+          if (rSG === 0 && typeof statusNestedArray[steps][index] != 'undefined') {
             tempSubGrid.push(undefined);
             continue; // prevent overlapping with the next if statement.
           }
@@ -354,7 +369,7 @@ function subGrid(turns, steps, index) {
         
         // if not sorted
         else if (typeof statusNestedArray[index][steps] === 'undefined') {
-          if (cSG === 0) {
+          if (cSG === 0 && typeof statusNestedArray[index[steps]]) {
             tempSubGrid.push(undefined);
             continue; // prevent overlapping with the next if statement.
           }
@@ -368,9 +383,8 @@ function subGrid(turns, steps, index) {
 }
 
 function swapSorted(turns, steps, request) {
+  console.log("swapSorted triggered")
   let index = listDuplicates(turns, steps, "nextLastIndexOf");
-  // debug only
-  console.log(`${turns} steps ${steps} index ${index}`)
 
   let tempSubGrid = [];
 
@@ -383,8 +397,9 @@ function swapSorted(turns, steps, request) {
   }
 
   // debug only
-  console.log(tempFlatArray)
-  console.log(tempSubGrid)
+  console.log(`${turns} steps ${steps} index ${index}
+    tempFlatArray ${tempFlatArray} tempSubGrid ${tempSubGrid}`
+  )
 
   for (let i = 0; i < tempSubGrid.length; i++) {
     if (typeof tempSubGrid[i] === 'undefined' ||
