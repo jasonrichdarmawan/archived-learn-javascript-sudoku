@@ -164,12 +164,6 @@ function check(turns, steps, request) {
       sortWithSG(turns, steps, "sort");
       check(turns, steps); // recursive
     }
-    
-    // swap sorted with sorted
-    // else if (swapSorted(turns, steps, "canSort") === true) {
-    //   swapSorted(turns, steps, "sort");
-    //   check(turns, steps);
-    // }
 
     else if (sortWithSG(turns, steps, "canSort", true) === true) {
       sortWithSG(turns, steps, "sort", true);
