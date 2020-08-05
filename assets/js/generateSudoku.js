@@ -2,8 +2,8 @@ let subGridRowLength = 2;
 let gridRowLength = Math.pow(2, 2);
 
 let gridNestedArray = [
-  [3, 2, 1, 2],
-  [1, 4, 4, 3],
+  [3, 2, 3, 2],
+  [1, 4, 4, 1],
   [2, 3, 1, 3],
   [1, 4, 4, 2]
 ];
@@ -38,7 +38,8 @@ function check(turns, steps, request) {
   } else if (isValid(turns, steps) === false) {
     // TODO: strategy
     if (sortWithSG(turns, steps, "canSort") === true) {
-      check(turns, steps); // recursive
+      sortWithSG(turns, steps, "sort");
+      check(turns, steps) // recursive
     } else if (request === "canFix") return false;
   }
 }
@@ -95,6 +96,62 @@ function sortWithSG(turns, steps, request) {
 
   let tempSubGrid = subGrid(turns, steps, index);
   console.log(tempSubGrid);
+
+  let tempFlatArray = [];
+
+  if (turns === "horizontal") {
+    tempFlatArray = gridNestedArray[steps];
+  } else if (turns === "vertical") {
+    tempFlatArray = columnToFlatArray(steps);
+  }
+
+  for (let i = 0; i < tempSubGrid.length; i++) {
+    if (typeof tempSubGrid[i] === 'undefined' ||
+        tempFlatArray.indexOf(tempSubGrid[i]) > -1
+    ) continue;
+    if (tempFlatArray.indexOf(tempSubGrid[i]) === -1) {
+      // request: canSort
+      if (request === "canSort") {
+        return true;
+      }
+
+      // request: sort
+      else if (request === "sort") {
+        let rSG = Math.floor(
+          Math.floor(i / subGridRowLength)
+        );
+        let cSG = i % subGridRowLength;
+  
+        // horizontal
+        if (turns === "horizontal") {
+          let r0 = Math.floor(
+            Math.floor(steps / subGridRowLength) * subGridRowLength
+          );
+          let c0 = Math.floor(
+            Math.floor(index / subGridRowLength) * subGridRowLength
+          );
+          gridNestedArray[steps][index] = [
+            gridNestedArray[r0 + rSG][c0 + cSG],
+            gridNestedArray[r0 + rSG][c0 + cSG] = gridNestedArray[steps][index]
+          ][0];
+        }
+        
+        // vertical
+        else if (turns === "vertical") {
+          let r0 = Math.floor(
+            Math.floor(index / subGridRowLength) * subGridRowLength
+          );
+          let c0 = Math.floor(
+            Math.floor(steps / subGridRowLength) * subGridRowLength
+          );
+          gridNestedArray[index][steps] = [
+            gridNestedArray[r0 + rSG][c0 + cSG],
+            gridNestedArray[r0 + rSG][c0 + cSG] = gridNestedArray[index][steps]
+          ][0];
+        }
+      }
+    } 
+  }
 }
 
 function listDuplicates(turns, steps, request) {
