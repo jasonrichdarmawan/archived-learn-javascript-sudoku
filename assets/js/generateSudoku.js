@@ -68,13 +68,27 @@ function populateTheNestedArray() {
   // ];
 
   // debug only: ERROR steps 3 horizontal needs new strategy
-  // subGridRowlength = 2;
+  // subGridRowLength = 2;
   // gridNestedArray = [
   //   [1, 4, 3, 2],
   //   [2, 3, 1, 4],
   //   [4, 2, 4, 3],
   //   [3, 1, 2, 1]
   // ];
+
+  // debug only: ERROR horizontal steps 3 needs new strategy
+  subGridRowLength = 2;
+  gridNestedArray = [
+    [3,4,3,2],
+    [1,2,1,4],
+    [4,2,3,2],
+    [3,1,1,4]
+  ]
+
+  // debug only
+  console.log(`=== Start: Before Fix ===`)
+  console.log(JSON.stringify(gridNestedArray));
+  console.log(`=== End ===`)
 
   return loopsteps();
 }
@@ -175,6 +189,8 @@ function sortWithSG(turns, steps, request) {
   let index = listDuplicates(turns, steps, "lastIndexOf");
 
   let tempSubGrid = subGrid(turns, steps, index);
+  // debug only
+  console.log(`${turns} steps ${steps} index ${index} tempSubGrid ${tempSubGrid}`)
 
   let tempFlatArray = [];
 
@@ -353,18 +369,20 @@ function subGrid(turns, steps, index) {
 
 function swapSorted(turns, steps, request) {
   let index = listDuplicates(turns, steps, "nextLastIndexOf");
+  // debug only
   console.log(`${turns} steps ${steps} index ${index}`)
 
   let tempSubGrid = [];
 
   if (turns === "horizontal") {
-    tempFlatArray = gridNestedArray[steps]
+    tempFlatArray = gridNestedArray[steps];
     tempSubGrid = subGrid("vertical", index, steps); // inverted
   } else if (turns === "vertical") {
     tempFlatArray = columnToFlatArray(steps);
     tempSubGrid = subGrid("horizontal", index, steps); // inverted
   }
 
+  // debug only
   console.log(tempFlatArray)
   console.log(tempSubGrid)
 
