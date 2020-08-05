@@ -1,21 +1,91 @@
-let subGridRowLength = 2;
-let gridRowLength = Math.pow(2, 2);
+let subGridRowLength;
+let subGridLength;
+let gridRowLength;
+let gridLength;
 
-let gridNestedArray = [
-  [3, 2, 3, 2],
-  [1, 4, 4, 1],
-  [2, 3, 1, 3],
-  [1, 4, 4, 2]
-];
+function newGrid(value) {
+  // reset global variables
+  gridNestedArray = [];
+  statusNestedArray = [];
 
-let statusNestedArray = [
-  [, , , ],
-  [, , , ],
-  [, , , ],
-  [, , , ]
-]
+  // global variables;
+  subGridRowLength = value;
+  subGridLength = Math.pow(subGridRowLength, 2);
+  gridRowLength = Math.pow(subGridRowLength, 2);
+  gridLength = Math.pow(subGridRowLength, 4);
 
-loopsteps();
+  let gridFlatArray = [];
+  let statusFlatArray = [];
+  for (let i = 0; i < gridLength; i++) {
+    gridFlatArray.push(0);
+    statusFlatArray.push(undefined);
+  }
+
+  return flatToNestedArray(gridFlatArray, statusFlatArray);
+}
+
+let gridNestedArray = [];
+let statusNestedArray = []; // true = sorted, false = not sorted yet.
+
+function flatToNestedArray(gridFlatArray, statusFlatArray) {
+  let i = 0;
+  for (i = 0; i < gridLength; i += gridRowLength) {
+    let tempGridRow = gridFlatArray.slice(i, i + gridRowLength);
+    gridNestedArray.push(tempGridRow);
+
+    let tempStatusRow = statusFlatArray.slice(i, i + gridRowLength);
+    statusNestedArray.push(tempStatusRow);
+  }
+
+  return populateTheNestedArray();
+}
+
+function populateTheNestedArray() {
+  // r0, c0 is relative to the Grid. r0, c0 is the NestedArray[0][0] of each subGrid.
+  // rSG, cSG is relative to the subGrid.
+  for (let r0 = 0; r0 < gridRowLength; r0 += subGridRowLength) {
+    for (let c0 = 0; c0 < gridRowLength; c0 += subGridRowLength) {
+      let numbers = possibleNumbers();
+      for (let rSG = 0; rSG < subGridRowLength; rSG++) {
+        for (let cSG = 0; cSG < subGridRowLength; cSG++) {
+          n = Math.floor(Math.random() * gridRowLength + 1); // random 1 to 9
+          if (numbers.indexOf(n) > -1) {
+            numbers.splice(numbers.indexOf(n), 1); // prevent double numbers within the subGrid.
+            gridNestedArray[r0 + rSG][c0 + cSG] = n;
+          } else cSG--; // loop until random generated n = numbers.
+        }
+      }
+    }
+  }
+
+  // debug only: ERROR steps 2 vertical needs new strategy
+  // subGridRowLength = 2;
+  // gridNestedArray = [
+  //   [3, 2, 1, 2],
+  //   [1, 4, 4, 3],
+  //   [2, 3, 1, 3],
+  //   [1, 4, 4, 2]
+  // ];
+
+  // debug only: ERROR steps 3 horizontal needs new strategy
+  subGridRowlength = 2;
+  gridNestedArray = [
+    [1, 4, 3, 2],
+    [2, 3, 1, 4],
+    [4, 2, 4, 3],
+    [3, 1, 2, 1]
+  ];
+
+  return loopsteps();
+}
+
+function possibleNumbers() {
+  let numbers = [];
+  for (let n = 1; n <= gridRowLength; n++) {
+    numbers.push(n);
+  }
+  return numbers;
+}
 
 function loopsteps() {
   // horizontal steps 0 -> veritcal steps 0 -> horizontal steps 1 -> repeat
