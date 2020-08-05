@@ -122,6 +122,20 @@ function populateTheNestedArray() {
   //     [6,4,8,5,6,2,9,7,1]
   // ];
 
+  // debug only: ERROR horizontal steps 4 needs new strategy
+  // subGridRowLength = 3;
+  // gridNestedArray = [
+  //   [4,6,7,5,3,8,9,3,8],
+  //   [3,8,9,6,9,1,1,6,5],
+  //   [2,5,1,2,7,4,2,7,4],
+  //   [9,2,3,6,9,1,9,8,4],
+  //   [8,1,4,2,8,4,7,3,5],
+  //   [6,5,7,5,7,3,6,2,1],
+  //   [5,6,9,2,6,9,5,2,3],
+  //   [8,7,3,5,7,8,8,7,6],
+  //   [4,1,2,4,3,1,1,9,4]
+  // ];
+
   // debug only
   console.log(`=== Start: Before Fix ===`)
   console.log(JSON.stringify(gridNestedArray));
@@ -165,6 +179,7 @@ function check(turns, steps, request) {
       check(turns, steps); // recursive
     }
 
+    // swap the nextLastIndexOf duplicate.
     else if (sortWithSG(turns, steps, "canSort", true) === true) {
       sortWithSG(turns, steps, "sort", true);
       check(turns, steps); // recursive
