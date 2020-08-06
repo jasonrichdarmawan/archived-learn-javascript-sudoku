@@ -140,7 +140,7 @@ function populateTheNestedArray() {
   // debug only
   console.log(`=== Start: Before Fix ===`)
   console.log(JSON.stringify(gridNestedArray));
-  console.log(`=== End ===`)
+  console.log(`=== End: Before Fix ===`)
 
   return loopsteps();
 }
@@ -361,7 +361,7 @@ function listDuplicates(turns, steps, request, index) {
   }
   
   // request: nextLastIndexOf
-  if (request === "nextLastIndexOf") {
+  else if (request === "nextLastIndexOf") {
     let tempDuplicates = listDuplicates(turns, steps, "list");
     return tempFlatArray.lastIndexOf(
       tempDuplicates[tempDuplicates.length - 1],
@@ -378,7 +378,10 @@ function listDuplicates(turns, steps, request, index) {
     ); // list
   }
 
-  else console.log(`ERROR listDuplicates(turns, steps, ${request}) request' parameter is not found`);
+  else { 
+    console.log(`ERROR listDuplicates(turns, steps, ${request}) request' parameter is not found`);
+    return;
+  }
 }
 
 function subGrid(turns, steps, index) {
