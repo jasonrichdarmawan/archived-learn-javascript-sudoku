@@ -142,7 +142,7 @@ function populateTheNestedArray() {
   console.log(JSON.stringify(gridNestedArray));
   console.log(`=== End: Before Fix ===`)
 
-  return loopsteps();
+  return loopSteps();
 }
 
 function possibleNumbers() {
@@ -153,7 +153,7 @@ function possibleNumbers() {
   return numbers;
 }
 
-function loopsteps() {
+function loopSteps() {
   // horizontal steps 0 -> veritcal steps 0 -> horizontal steps 1 -> repeat
   for (let steps = 0; steps < gridRowLength; steps++) {
     if (check("horizontal", steps, "canFix") === false) {
